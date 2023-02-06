@@ -1,0 +1,3 @@
+function T = fkine(S,M,q)
+    %T = ...
+end
