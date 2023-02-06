@@ -47,20 +47,16 @@ robot.teach(q);
 % Put all the axes into a 6xn matrix S, where n is the number of joints
 
 S = [0 0 1 0 0 0;
-     0 1 0 0 -0.32 0;
-     0 1 0 0 -0.545 0;
+     0 1 0 -0.32 0 0;
+     0 1 0 -0.545 0 0;
      0 0 1 0.035 0 0;
-     0 1 0 0 -0.770 0;
+     0 1 0 -0.770 0 0;
      0 0 1 0.035 0 0;]';
 
 %% Part B - Calculate the forward kinematics with the Product of Exponentials formula
 % First, let us calculate the homogeneous transformation matrix M for the
 % home configuration
 
-% M = [1 0 0 0;
-%      0 1 0 35;
-%      0 0 1 0;
-%      0 0 0 1];
 M = double(robot.fkine([0 0 0 0 0 0]));
 
 fprintf('---------------------Forward Kinematics Test---------------------\n');
@@ -82,18 +78,19 @@ for ii = 1 : nTests
          qlim(6,1) + (qlim(6,2) - qlim(6,1)) * rand()];
     
     % Calculate the forward kinematics
-    T = eye(4);
-    for i = 1: width(S)
-        Si = S(:,i);
-        qi = q(i);
-        TF = twist2ht(Si, qi);
-        T = T * TF;
-
-        disp(i)
-        disp(TF)
-        disp(T)
-    end
-    T = T * M;
+%     T = eye(4);
+%     for i = 1: width(S)
+%         Si = S(:,i);
+%         qi = q(i);
+%         TF = twist2ht(Si, qi);
+%         T = T * TF;
+% 
+%         disp(i)
+%         disp(TF)
+%         disp(T)
+%     end
+%     T = T * M;
+    T = fkine(S,M,q);
     
     if plotOn
         robot.teach(q);
@@ -114,36 +111,8 @@ fprintf('\nTest passed successfully.\n');
 
 
 
-function R = axisangle2rot(omega,theta)
-    % Rodrigoes Formula
-    I = eye(3);
-    st = sin(theta);
-    ct = cos(theta);
-    w = [0          -omega(3)   omega(2);
-         omega(3)   0           -omega(1);
-         -omega(2)  omega(1)    0;];
-
-    R = I + st * w + (1-ct) * w * w;
-end
 
 
-
-function T = twist2ht(S,theta)
-
-    I = eye(3);
-    st = sin(theta);
-    ct = cos(theta);
-    omega = [S(1); S(2); S(3)];
-    v = [S(4); S(5); S(6)];
-    w = [0          -omega(3)   omega(2);
-         omega(3)   0           -omega(1);
-         -omega(2)  omega(1)    0;];
-    R = axisangle2rot(omega,theta);
-    coner = (I*theta + (1-ct)*w + (theta-st)*w*w) * v;
-    
-    T = [R coner;
-        0 0 0 1];
-end
 
 
 
