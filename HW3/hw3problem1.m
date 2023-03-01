@@ -102,7 +102,7 @@ for ii = 1 : nTests
 %         current_V = fkine()
         
 %         deltaQ = 0.2*transpose(J_s) * (targetTwist(:,ii) - currentPose)
-        deltaQ = pinv(J_s) * (targetTwist(:,ii) - currentPose)
+        deltaQ = pinv(J_s) * (targetTwist(:,ii) - currentPose);
         
         currentQ = currentQ + deltaQ';
         
