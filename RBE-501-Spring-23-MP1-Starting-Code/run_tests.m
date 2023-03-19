@@ -22,7 +22,6 @@ M = [R p; 0 0 0 1];
 %% Load the test configurations
 load target_poses.mat
 nPts = length(V);
-% nPts = 6;
 
 %% Calculate the IK
 % Initialize a matrix to store the IK solutions
@@ -47,5 +46,6 @@ for ii = 1 : nPts
         success_num = success_num + 1;
     end
 end
+
 success_num
 q
