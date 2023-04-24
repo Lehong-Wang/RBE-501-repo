@@ -42,6 +42,28 @@ title('Inverse Dynamics Control');
 waypoints = zeros(n,nPts);
 % waypoints = ...
 
+currentXYZ = M(1:3,4);
+currentQ = zeros(1,3);
+
+for ii = 1 : nPts
+    % fprintf(repmat('\b',1,nbytes));
+    % nbytes = fprintf('%0.f%%', ceil(ii/nTests*100));
+        
+    while norm(path(:,ii) - currentXYZ) > 1e-3
+        Ja = jacoba(S,M,currentQ);  
+
+        % deltaQ = pinv(Ja) * (path(:,ii) - currentXYZ);
+        deltaQ = Ja' * (path(:,ii) - currentXYZ);
+
+        currentQ = currentQ + deltaQ';
+        
+        T = fkine(S,M,currentQ);
+        currentXYZ = T(1:3,4);
+    end
+    waypoints(:,ii) = currentQ
+
+end
+waypoints
 
 fprintf('Done.\n');
 
@@ -63,7 +85,8 @@ for jj = 1 : nPts - 1
    
     % Initialize the time vector
     dt = 1e-3;       % time step [s]
-    t  = 0 : dt : 5; % total time [s]
+    % t  = 0 : dt : 5; % total time [s]
+    t  = 0 : dt : .5; % total time [s]
 
     % Initialize the arrays where we will accumulate the output of the robot
     % dynamics
@@ -83,6 +106,7 @@ for jj = 1 : nPts - 1
         params_traj.q = [waypoints(ii,jj) waypoints(ii,jj+1)];
         params_traj.v = [0 0];
         params_traj.a = [0 0];
+        params_traj.dt = dt;
 
         traj = make_trajectory('quintic', params_traj);
 
@@ -114,6 +138,7 @@ for jj = 1 : nPts - 1
         params_rne.jointVel = jointVel_prescribed(:,ii);
         params_rne.jointAcc = jointAcc_prescribed(:,ii);
         params_rne.Ftip = zeros(6,1); % end effector wrench
+        params_rne.Ftip = [0 0 0 -9.8 0 0]'; % end effector wrench
 
         tau_prescribed(:,ii) = rne(params_rne);
 
@@ -123,7 +148,7 @@ for jj = 1 : nPts - 1
         params_fdyn.jointVel = jointVel_actual(:,ii);
         params_fdyn.tau = tau_prescribed(:,ii);
         params_fdyn.Ftip = zeros(6,1); % end effector wrench
-
+        params_fdyn.Ftip = [0 0 0 -9.8 0 0]';
         jointAcc = fdyn(params_fdyn);
 
         % Integrate the joint accelerations to get velocity and

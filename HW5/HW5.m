@@ -1,5 +1,7 @@
 
 
+addpath('utils')
+addpath('lib')
 
 
 % %% Sample Usage of the RNE function for a three-dof robot (this is the same 3-DoF robot you have seen in HW 2, 3 and 4)
