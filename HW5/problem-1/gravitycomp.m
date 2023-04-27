@@ -40,6 +40,7 @@ params.jointPos = zeros(3,1); % desired joint positions
 params.jointVel = zeros(3,1); % desired joint velocities
 params.jointAcc = zeros(3,1); % desired joint accelerations
 params.Ftip = zeros(6,1);     % desired wrench at the end effector
+% params.Ftip = [0 0 0 -1 0 0]';
 
 % Invoke the RNE algorithm to calculate the joint torques needed for
 % gravity compensation
@@ -53,8 +54,9 @@ fprintf('\nWe are now going to simulate the robot to see if it moves.\n');
 fprintf('Calculating the Forward Dynamics: ');
 nbytes = fprintf('0%%');
 
-dt = 1e-4;        % simulation time step [s]
-t = 0 : dt : 0.5; % total simulation time [s]
+dt = 1e-3;        % simulation time step [s]
+% t = 0 : dt : 0.5; % total simulation time [s]
+t = 0 : dt : 5; % total simulation time [s]
 
 qt = zeros(n,size(t,2));  qt(:,1) = params.jointPos;
 qdt = zeros(n,size(t,2)); qdt(:,1) = params.jointVel;
@@ -68,7 +70,9 @@ for ii = 1 : size(t,2) - 1
 
     % Set torques
     params.tau = tau; % supply the torques needed for gravity compensation
+    % params.Ftip = [0 0 0 0 0 0]';
 
+    % Call forward dynamics
     % Calculate the joint accelerations
     jointAcc = fdyn(params);
 
